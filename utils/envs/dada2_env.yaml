@@ -1,0 +1,4 @@
+name: test
+channels:
+  - defaults
+prefix: /Users/alana.schick/opt/miniconda3/envs/test

@@ -1,0 +1,26 @@
+name: cutadapt
+channels:
+  - bioconda
+  - defaults
+dependencies:
+  - bz2file=0.98=py37_1
+  - ca-certificates=2020.7.22=0
+  - certifi=2020.6.20=py37_0
+  - cutadapt=1.18=py37h1de35cc_1
+  - libcxx=10.0.0=1
+  - libedit=3.1.20191231=h1de35cc_1
+  - libffi=3.2.1=1
+  - ncurses=6.2=h0a44026_1
+  - openssl=1.1.1h=haf1e3a3_0
+  - pigz=2.4=ha441bb4_0
+  - pip=20.2.3=py37_0
+  - python=3.7.7=hc70fcce_0_cpython
+  - readline=8.0=h1de35cc_0
+  - setuptools=50.3.0=py37h0dc7051_1
+  - sqlite=3.33.0=hffcf06c_0
+  - tk=8.6.10=hb0a8c7a_0
+  - wheel=0.35.1=py_0
+  - xopen=0.7.3=py_0
+  - xz=5.2.5=h1de35cc_0
+  - zlib=1.2.11=h1de35cc_3
+prefix: /Users/alana.schick/opt/miniconda3/envs/cutadapt

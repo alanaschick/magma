@@ -1,0 +1,38 @@
+# **********************************
+# * Parameters for 16S pipeline *
+# **********************************
+
+# List of files
+list_files: "/Users/alana.schick/Desktop/dropbox_temp/bcch/projects/gregor_reid/list_files_gregor_reid.txt"
+# Path to raw sequences
+path: "/Users/alana.schick/Desktop/dropbox_temp/bcch/sequence_data/2021_08_16_run18/"
+# Suffix for forward reads
+for: "_R1_001.fastq.gz"
+# Suffix for reverse reads
+rev: "_R2_001.fastq.gz"
+
+### Cutadapt parameters
+# Choose whether to run cutadapt
+run_cutadapt: FALSE
+# Primers - Illumina V3-V4
+#fwd_primer: "TCGTCGGCAGCGTCAGATGTGTATAAGAGACAGCCTACGGGNGGCWGCAG"
+#rev_primer: "GTCTCGTGGGCTCGGAGATGTGTATAAGAGACAGGACTACHVGGGTATCTAATCC"
+#fwd_primer_rc: "CTGCWGCCNCCCGTAGGCTGTCTCTTATACACATCTGACGCTGCCGACGA"
+#rev_primer_rc: "GGATTAGATACCCBDGTAGTCCTGTCTCTTATACACATCTCCGAGCCCACGAGAC"
+
+# Primers - Illumina V4
+fwd_primer: "TATGGTAATTGTGTGYCAGCMGCCGCGGTAA"
+rev_primer: "AGTCAGTCAGCCGGACTACNVGGGTWTCTAAT"
+fwd_primer_rc: "TTACCGCGGCKGCTGRCACACAATTACCATA"
+rev_primer_rc: "ATTAGAWACCCBNGTAGTCCGGCTGACTGACT"
+
+### Dada2 filtering parameters
+trimleft: 10
+expected_errors_forward: 2
+expected_errors_reverse: 2
+truncate_forward: 250
+truncate_reverse: 250
+
+# Location of reference databases
+dada2_tax_ref: "/Users/alana.schick/Desktop/dropbox_temp/bcch/reference_files/silva_nr99_v138_train_set.fa"
+dada2_spe_ref: "/Users/alana.schick/Desktop/dropbox_temp/bcch/reference_files/silva_species_assignment_v138.fa"
