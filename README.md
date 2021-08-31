@@ -6,6 +6,16 @@ Bioinformatics pipeline for processing 16S rRNA amplicon sequence data.
 
 Custom parameters stored in `config.yaml`.
 
+## Installation
+
+To use: navigate to project directory. Clone this respository using the following:
+
+```
+git clone https://github.com/alanaschick/magma.git magma
+```
+
+Note: you need to have **conda** and **snakemake** installed locally in order to run this. See instructions below.
+
 ### Preprocessing
 
 * Do this thing.
@@ -23,3 +33,13 @@ Custom parameters stored in `config.yaml`.
 * Remove bimeras, assign taxonomy.
 * Track reads throughout processing, print results to table.
 
+## Conda and Snakemake
+
+To install conda, see the instructions [here](https://github.com/ucvm/synergy/wiki). 
+
+To install snakemake using conda, run the following line:
+
+```
+conda install -c bioconda -c conda-forge snakemake
+```
+See the snakemake installation [instructions](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) for further details.
