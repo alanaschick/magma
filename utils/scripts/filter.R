@@ -1,12 +1,11 @@
 ## Alana Schick
 ## This is a script to filter 16S microbiome data using dada2's function filterAndTrim
 ## Note that prior to running this script, primers have been trimmed using Cutadapt - resulting files called samplename_r1_trimmed.fastq.gz
-## Last Updated: Novemeber 2020
+## Last Updated: August 2021
 
 ## This is a version of the script to be run using snakemake
 
 library(dada2)
-packageVersion("dada2")
 library(tidyverse)
 
 ## Set variables
@@ -22,7 +21,7 @@ trimmed <- snakemake@config$run_cutadapt
 path_to_raw <- snakemake@config$path
 
 ## Make directory for quality plots
-dir.create("results/quality_plots/")
+dir.create("output/quality_plots/")
 
 #########################################################
 
@@ -33,8 +32,8 @@ samples <- scan(list_of_filenames, what = "character")
 ############# Need to fix this to be dependent on whether or not cutadapt is run
 ## file names of forward and reverse reads, before quality filtering
 if (trimmed == T){
-	forward_reads <- file.path("data/trimmed", paste0(samples, "_r1_trimmed.fastq.gz"))
-	reverse_reads <- file.path("data/trimmed", paste0(samples, "_r2_trimmed.fastq.gz"))
+	forward_reads <- file.path("output/temp/cutadapt", paste0(samples, "_r1_cutadapt.fastq.gz"))
+	reverse_reads <- file.path("output/temp/cutadapt", paste0(samples, "_r2_cutadapt.fastq.gz"))
 }
 
 if (trimmed == F){
@@ -43,8 +42,8 @@ if (trimmed == F){
 }
 
 ## file names of forward and reverse reads, after quality filtering
-filtered_forward_reads <- file.path("data", "filtered", paste0(samples, "_r1_filtered.fastq.gz"))
-filtered_reverse_reads <- file.path("data", "filtered", paste0(samples, "_r2_filtered.fastq.gz"))
+filtered_forward_reads <- file.path("output/temp/filtered", paste0(samples, "_r1_filtered.fastq.gz"))
+filtered_reverse_reads <- file.path("output/temp/filtered", paste0(samples, "_r2_filtered.fastq.gz"))
 
 
 # #########################################################
@@ -88,9 +87,9 @@ filtered_reverse_reads <- file.path("data", "filtered", paste0(samples, "_r2_fil
 
 #out <- filterAndTrim(forward_reads, filtered_forward_reads, reverse_reads, filtered_reverse_reads, maxEE = expected_errors, multithread = TRUE, rm.phix=TRUE, truncLen=truncate, trimLeft = trimleft, compress = TRUE)
 
-out <- filterAndTrim(forward_reads, filtered_forward_reads, reverse_reads, filtered_reverse_reads, maxEE = expected_errors, multithread = TRUE, rm.phix=TRUE, trimLeft = trimleft, compress = TRUE)
+out <- filterAndTrim(forward_reads, filtered_forward_reads, reverse_reads, filtered_reverse_reads, maxEE = expected_errors, multithread = TRUE, rm.phix=TRUE, trimLeft = trimleft, compress = TRUE, truncLen = truncate)
 
-saveRDS(out, file.path("results", "filt_out.rds"))
+saveRDS(out, file.path("output/temp", "filt_out.rds"))
 
 ####### Step 2: Plot quality profiles
 ## Select 10 samples at random to inspect/print
@@ -98,7 +97,7 @@ toplot <- sample(c(1:length(samples)), 10)
 
 ## Plotting forward versus reverse quality
 for (i in 1:10){
-  pdf(paste("results/quality_plots/quality_", samples[toplot[i]], ".pdf", sep = ""))
+  pdf(paste("output/quality_plots/quality_", samples[toplot[i]], ".pdf", sep = ""))
   print(plotQualityProfile(c(filtered_forward_reads[toplot[i]], forward_reads[toplot[i]], filtered_reverse_reads[toplot[i]], reverse_reads[toplot[i]])))
   dev.off()
 }
