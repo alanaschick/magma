@@ -25,8 +25,8 @@ rule cutadapt:
     params: pre = "{sample}"
     output:
         r1 = "output/temp/cutadapt/{sample}_r1_cutadapt.fastq.gz",
-        r2 = "output/temp/cutadapt/{sample}_r2_cutadapt.fastq.gz",
-        conda: "utils/envs/cutadapt_env.yaml"
+        r2 = "output/temp/cutadapt/{sample}_r2_cutadapt.fastq.gz"
+    conda: "utils/envs/cutadapt_env.yaml"
     shell:
             "cutadapt -e 0 -O 10 -m 50 -n 2 --discard-untrimmed -g {config[fwd_primer]} "
             "-G {config[rev_primer]} -a {config[rev_primer_rc]} "
