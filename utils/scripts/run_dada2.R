@@ -1,11 +1,12 @@
-## Alana Schick, August 2018
+## Alana Schick
 ## This is a script to process 16S microbiome data using dada2
 ## Note that prior to running this script, primers have been trimmed using Cutadapt and reads have been filtered
+## Last updated: August 2021
 
 ## This is a version of the script to be run using snakemake
 
 library(dada2)
-packageVersion("dada2")
+#packageVersion("dada2")
 
 ## Set variables
 list_of_filenames <- snakemake@input$listfiles
@@ -19,8 +20,8 @@ out <- readRDS(snakemake@input$filt_out)
 
 
 ## file names of forward and reverse reads, after quality filtering
-filtered_forward_reads <- file.path("data", "filtered", paste0(samples, "_r1_filtered.fastq.gz"))
-filtered_reverse_reads <- file.path("data", "filtered", paste0(samples, "_r2_filtered.fastq.gz"))
+filtered_forward_reads <- file.path("output/temp/filtered", paste0(samples, "_r1_filtered.fastq.gz"))
+filtered_reverse_reads <- file.path("output/temp/filtered", paste0(samples, "_r2_filtered.fastq.gz"))
 
 
 ####### Step 2: Generate error model of data
@@ -64,7 +65,7 @@ seqtab.nochim <- removeBimeraDenovo(seqtab, method = "consensus", multithread = 
 
 ## How are the reads concentrated in the merged sequence lengths
 readsbyseqlen <- tapply(colSums(seqtab.nochim), nchar(colnames(seqtab.nochim)),sum)
-pdf(file.path("results", "merged_sequence_lengths.pdf"))
+pdf(file.path("output", "merged_sequence_lengths.pdf"))
 plot(as.integer(names(readsbyseqlen)),readsbyseqlen, xlab = "Merged length", ylab = "Total reads")
 dev.off()
 
@@ -79,7 +80,11 @@ perc_filtered <- (summary_tab$filtered/summary_tab$dada2_input)*100
 perc_merged <- (summary_tab$merged/summary_tab$filtered)*100
 perc_nonchim <- (summary_tab$nonchim/summary_tab$merged) * 100
 
-pdf(file.path("results", "read_tracking.pdf"))
+
+################################################
+## To do: Need to improve this plot
+################################################
+pdf(file.path("output", "read_tracking.pdf"))
 par(mfrow = c(2,2))
 hist(perc_filtered, breaks = 50, col = "blue", main = "Filtering", xlab = "Percentage reads remaining")
 hist(perc_merged, breaks = 50, col = "blue", main = "Merging", xlab = "Percentage reads remaining")
@@ -88,19 +93,21 @@ hist(summary_tab$total_perc_reads, col = "blue", breaks = 50, main = "Total", xl
 dev.off()
 
 ## Write this table to output
-write.table(summary_tab, file.path("results", "reads_tracked.txt"))
+write.table(summary_tab, file.path("output", "reads_tracked.txt"))
 
 
 ####### Step 8: Assign Taxonomy
-
+################################################
+## To do: add parameter to config file to allow user to decide whether or not to allow multiples
+################################################
 taxa <- assignTaxonomy(seqtab.nochim, tax_ref, multithread = TRUE)
 taxa <- addSpecies (taxa, spe_ref, allowMultiple = 3)
 
 
 ####### Step 9: Save output
 
-saveRDS(seqtab.nochim, file.path("results", "seqtab_final.rds"))
-saveRDS(taxa, file.path("results", "taxa_final.rds"))
+saveRDS(seqtab.nochim, file.path("output", "seqtab_final.rds"))
+saveRDS(taxa, file.path("output", "taxa_final.rds"))
 
 
 
