@@ -28,7 +28,7 @@ rule cutadapt:
         r2 = "output/temp/cutadapt/{sample}_r2_cutadapt.fastq.gz"
     conda: "utils/envs/cutadapt_env.yaml"
     shell:
-            "mkdir -p output/temp/cutadapt/logs; cutadapt -e 0 -O 10 -m 50 -n 2 --discard-untrimmed -g {config[fwd_primer]} "
+            "mkdir -p output/temp/cutadapt/logs; cutadapt -e 0 -O 10 -m 50 -n 2 -g {config[fwd_primer]} "
             "-G {config[rev_primer]} -a {config[rev_primer_rc]} "
             "-A {config[fwd_primer_rc]} -o {output.r1} -p {output.r2} "
             "{input.r1} {input.r2} > output/temp/cutadapt/logs/{params.pre}.cutadapt.log"
