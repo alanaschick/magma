@@ -46,41 +46,41 @@ filtered_forward_reads <- file.path("output/temp/filtered", paste0(samples, "_r1
 filtered_reverse_reads <- file.path("output/temp/filtered", paste0(samples, "_r2_filtered.fastq.gz"))
 
 
-# #########################################################
-# ######## Step 0: Testing different maxEE values
-# results <- array(NA, c(25, 3))
-# colnames(results) <- c("for_ee", "rev_ee", "perc")
-# count <- 1
-# ## Select a sample at random to inspect
-# test <- sample(c(1:length(samples)), 1)
-#
-# for (i in 1:5){
-#   for (j in 1:5){
-#     out <- filterAndTrim(forward_reads[test],
-#                          filtered_forward_reads[test],
-#                          reverse_reads[test],
-#                          filtered_reverse_reads[test], truncLen=truncate,
-#                          maxEE=c(i,j), rm.phix=TRUE,
-#                          compress=FALSE, multithread=TRUE, trimLeft = trimleft)
-#     res <- out[1,2]/out[1,1]
-#     results[count, 1] <- i
-#     results[count, 2] <- j
-#     results[count,3] <- res
-#     count <- count +1
-#   }
-# }
-#
-# results <- as.data.frame(results)
-#
-# gg <- ggplot(results, aes(x = for_ee, y = perc, colour = as.factor(rev_ee))) +
-#   geom_point(size = 4) +
-#   geom_line(size = 2) +
-#   scale_colour_manual(values = rainbow(5, v = 0.8), name = "Error rate Reverse") +
-#   xlab("Error rate Forward") +
-#   ylab("Percentage reads passed filtering") +
-#   ggtitle(paste("Using sample:", samples[test])) +
-#   theme_bw()
-# gg
+#########################################################
+######## Step 0: Exploring filtering parameters
+results <- array(NA, c(25, 3))
+colnames(results) <- c("for_ee", "rev_ee", "perc")
+count <- 1
+## Select a sample at random to inspect
+test <- sample(c(1:length(samples)), 1)
+
+for (i in 1:5){
+  for (j in 1:5){
+    out <- filterAndTrim(forward_reads[test],
+                         filtered_forward_reads[test],
+                         reverse_reads[test],
+                         filtered_reverse_reads[test], truncLen=truncate,
+                         maxEE=c(i,j), rm.phix=TRUE,
+                         compress=FALSE, multithread=TRUE, trimLeft = trimleft)
+    res <- out[1,2]/out[1,1]
+    results[count, 1] <- i
+    results[count, 2] <- j
+    results[count,3] <- res
+    count <- count +1
+  }
+}
+
+results <- as.data.frame(results)
+
+gg <- ggplot(results, aes(x = for_ee, y = perc, colour = as.factor(rev_ee))) +
+  geom_point(size = 4) +
+  geom_line(size = 2) +
+  scale_colour_manual(values = rainbow(5, v = 0.8), name = "Error rate Reverse") +
+  xlab("Error rate Forward") +
+  ylab("Percentage reads passed filtering") +
+  ggtitle(paste("Using sample:", samples[test])) +
+  theme_bw()
+gg
 
 #########################################################
 ####### Step 1: Quality filtering
