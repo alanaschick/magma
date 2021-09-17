@@ -101,7 +101,7 @@ write.table(summary_tab, file.path("output", "reads_tracked.txt"))
 ## To do: add parameter to config file to allow user to decide whether or not to allow multiples
 ################################################
 taxa <- assignTaxonomy(seqtab.nochim, tax_ref, multithread = TRUE)
-taxa <- addSpecies (taxa, spe_ref, allowMultiple = 3)
+taxa <- addSpecies (taxa, spe_ref, allowMultiple = TRUE)
 
 
 ####### Step 9: Save output
