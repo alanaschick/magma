@@ -26,8 +26,16 @@ rev_primer: "AGTCAGTCAGCCGGACTACNVGGGTWTCTAAT"
 fwd_primer_rc: "TTACCGCGGCKGCTGRCACACAATTACCATA"
 rev_primer_rc: "ATTAGAWACCCBNGTAGTCCGGCTGACTGACT"
 
+# Nextera Transposase Sequence - Zymo Quick 16S
+fwd_primer: "CTGTCTCTTATACACATCT"
+rev_primer: "CTGTCTCTTATACACATCT"
+fwd_primer_rc: "CTGTCTCTTATACACATCT"
+rev_primer_rc: "CTGTCTCTTATACACATCT"
+
 ### Dada2 filtering parameters
-trimleft: 10
+readlength: 250
+trimleft_forward: 10
+trimleft_reverse: 10
 expected_errors_forward: 2
 expected_errors_reverse: 2
 truncate_forward: 250
