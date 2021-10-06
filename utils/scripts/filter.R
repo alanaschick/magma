@@ -1,20 +1,22 @@
 ## Alana Schick
 ## This is a script to filter 16S microbiome data using dada2's function filterAndTrim
 ## Note that prior to running this script, primers have been trimmed using Cutadapt - resulting files called samplename_r1_trimmed.fastq.gz
-## Last Updated: August 2021
+## Last Updated: October 6 2021
 
 ## This is a version of the script to be run using snakemake
 
 library(dada2)
 library(tidyverse)
+library(colorRamps)
 
 ## Set variables
 list_of_filenames <- snakemake@input$listfiles
 
 ## Set filtering parameters from config file
-trimleft <- snakemake@config$trimleft
+trimleft <- c(snakemake@config$trimleft_forward, snakemake@config$trimleft_reverse)
 expected_errors <- c(snakemake@config$expected_errors_forward, snakemake@config$expected_errors_reverse)
 truncate <- c(snakemake@config$truncate_forward, snakemake@config$truncate_reverse)
+readlength <- snakemake@config$readlength
 
 ## Cutadapt setting
 trimmed <- snakemake@config$run_cutadapt
@@ -48,39 +50,42 @@ filtered_reverse_reads <- file.path("output/temp/filtered", paste0(samples, "_r2
 
 #########################################################
 ######## Step 0: Exploring filtering parameters
-results <- array(NA, c(25, 3))
-colnames(results) <- c("for_ee", "rev_ee", "perc")
-count <- 1
-## Select a sample at random to inspect
-test <- sample(c(1:length(samples)), 1)
-
-for (i in 1:5){
-  for (j in 1:5){
+results <- NULL
+## Select a set of samples at random to inspect
+test <- sample(c(1:length(samples)), 10)
+ 
+for (i in seq(from = readlength-55, to = readlength, by = 5)){
+  for (j in seq(from = readlength-110, to = readlength, by = 10)){
+  	truncparam <- c()
     out <- filterAndTrim(forward_reads[test],
                          filtered_forward_reads[test],
                          reverse_reads[test],
-                         filtered_reverse_reads[test], truncLen=truncate,
-                         maxEE=c(i,j), rm.phix=TRUE,
+                         filtered_reverse_reads[test], 
+						 truncLen=c(i,j),
+                         maxEE=expected_errors, rm.phix=TRUE,
                          compress=FALSE, multithread=TRUE, trimLeft = trimleft)
-    res <- out[1,2]/out[1,1]
-    results[count, 1] <- i
-    results[count, 2] <- j
-    results[count,3] <- res
-    count <- count +1
+    res <- data.frame(Sample = rownames(out), perc = out[,2]/out[,1], for_trunc = i, rev_trunc = j)
+    results <- rbind(results, res)
   }
 }
 
-results <- as.data.frame(results)
+results <- results %>% separate(Sample, c("Name", "Sample"), sep = "_S")
 
-gg <- ggplot(results, aes(x = for_ee, y = perc, colour = as.factor(rev_ee))) +
-  geom_point(size = 4) +
-  geom_line(size = 2) +
-  scale_colour_manual(values = rainbow(5, v = 0.8), name = "Error rate Reverse") +
-  xlab("Error rate Forward") +
+gg <- ggplot(results, aes(x = for_trunc, y = perc, colour = as.factor(rev_trunc))) +
+  geom_point(size = 2) +
+  geom_line(size = 1) +
+  scale_colour_manual(values = sample(primary.colors(20), 12), name = "Truncate Reverse") +
+  xlab("Truncate Forward") +
   ylab("Percentage reads passed filtering") +
-  ggtitle(paste("Using sample:", samples[test])) +
-  theme_bw()
+  ggtitle("Truncation parameters") +
+  theme_bw() +
+  facet_wrap(~Name)
+
+
+pdf(file.path("output", "truncation_parameters.pdf"))
 gg
+dev.off()
+
 
 #########################################################
 ####### Step 1: Quality filtering
