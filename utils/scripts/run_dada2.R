@@ -1,12 +1,13 @@
 ## Alana Schick
 ## This is a script to process 16S microbiome data using dada2
 ## Note that prior to running this script, primers have been trimmed using Cutadapt and reads have been filtered
-## Last updated: August 2021
+## Last updated: OCTOBER 6 2021
 
 ## This is a version of the script to be run using snakemake
 
 library(dada2)
 #packageVersion("dada2")
+library(tidyverse)
 
 ## Set variables
 list_of_filenames <- snakemake@input$listfiles
@@ -73,27 +74,36 @@ dev.off()
 ####### Step 7b: Track reads throughout processing
 
 getN <- function(x) sum (getUniques(x))
-summary_tab <- data.frame(row.names=samples, dada2_input=out[,1], filtered=out[,2], dada_f=sapply(dadaF, getN), dada_r=sapply(dadaR, getN), merged=sapply(merged, getN), nonchim=rowSums(seqtab.nochim), total_perc_reads = round(rowSums(seqtab.nochim)/out[,1]*100,1))
+summary_tab <- data.frame(row.names=samples, Input=out[,1], Filtered=out[,2], Denoised=sapply(dadaF, getN), Merged=sapply(merged, getN), Non.Chimeric=rowSums(seqtab.nochim), Total.Perc.Remaining = round(rowSums(seqtab.nochim)/out[,1]*100,1))
 
-## Generate plots
-perc_filtered <- (summary_tab$filtered/summary_tab$dada2_input)*100
-perc_merged <- (summary_tab$merged/summary_tab$filtered)*100
-perc_nonchim <- (summary_tab$nonchim/summary_tab$merged) * 100
 
 
 ################################################
-## To do: Need to improve this plot
+## To do: Need to improve this plot?
 ################################################
-pdf(file.path("output", "read_tracking.pdf"))
-par(mfrow = c(2,2))
-hist(perc_filtered, breaks = 50, col = "blue", main = "Filtering", xlab = "Percentage reads remaining")
-hist(perc_merged, breaks = 50, col = "blue", main = "Merging", xlab = "Percentage reads remaining")
-hist(perc_nonchim, breaks = 50, col = "blue", main = "Removing chimeras", xlab = "Percentage reads remaining")
-hist(summary_tab$total_perc_reads, col = "blue", breaks = 50, main = "Total", xlab = "Percentage reads remaining")
+pdf(file.path("output", "reads_remaining.pdf"))
+hist(summary_tab$Total.Perc.Remaining, col = "blue", breaks = 50, main = "Total", xlab = "Percentage reads remaining")
 dev.off()
 
 ## Write this table to output
 write.table(summary_tab, file.path("output", "reads_tracked.txt"))
+
+summary_tab$Sample <- rownames(summary_tab) 
+summary_tab <- summary_tab %>% separate(Sample, c("Sample", "temp"), sep = "_S") 
+summary_tab$Sample <- factor(summary_tab$Sample, levels = summary_tab$Sample[order(summary_tab$Non.Chimeric)])
+summary_tab_long <- summary_tab %>% gather("QC.Step", "Reads", Input:Non.Chimeric)
+summary_tab_long$QC.Step <- factor(summary_tab_long$QC.Step, levels = c("Input", "Filtered", "Denoised", "Merged", "Non.Chimeric"))
+
+
+gg <- ggplot(summary_tab_long, aes(x = Sample, y = Reads, color = QC.Step)) +
+	geom_point(size = 2) +
+	scale_color_manual(values = rainbow(5, v = 0.8)) +
+	theme_bw() +
+	theme(axis.text.x = element_text(angle = 90))
+pdf(file.path("output", "read_tracking.pdf"))
+gg
+dev.off()
+
 
 
 ####### Step 8: Assign Taxonomy
