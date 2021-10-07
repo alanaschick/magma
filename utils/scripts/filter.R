@@ -52,10 +52,10 @@ filtered_reverse_reads <- file.path("output/temp/filtered", paste0(samples, "_r2
 ######## Step 0: Exploring filtering parameters
 results <- NULL
 ## Select a set of samples at random to inspect
-test <- sample(c(1:length(samples)), 10)
+test <- sample(c(1:length(samples)), 12)
  
-for (i in seq(from = readlength-55, to = readlength, by = 5)){
-  for (j in seq(from = readlength-110, to = readlength, by = 10)){
+for (i in seq(from = readlength-45, to = readlength, by = 5)){
+  for (j in seq(from = readlength-90, to = readlength, by = 10)){
   	truncparam <- c()
     out <- filterAndTrim(forward_reads[test],
                          filtered_forward_reads[test],
@@ -74,7 +74,7 @@ results <- results %>% separate(Sample, c("Name", "Sample"), sep = "_S")
 gg <- ggplot(results, aes(x = for_trunc, y = perc, colour = as.factor(rev_trunc))) +
   geom_point(size = 2) +
   geom_line(size = 1) +
-  scale_colour_manual(values = sample(primary.colors(20), 12), name = "Truncate Reverse") +
+  scale_colour_manual(values = sample(primary.colors(20), 10), name = "Truncate Reverse") +
   xlab("Truncate Forward") +
   ylab("Percentage reads passed filtering") +
   ggtitle("Truncation parameters") +
