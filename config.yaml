@@ -42,5 +42,6 @@ truncate_forward: 250
 truncate_reverse: 250
 
 # Location of reference databases
+bacterial: TRUE
 dada2_tax_ref: "/Users/alana.schick/Desktop/dropbox_temp/bcch/reference_files/silva_nr99_v138_train_set.fa"
 dada2_spe_ref: "/Users/alana.schick/Desktop/dropbox_temp/bcch/reference_files/silva_species_assignment_v138.fa"
