@@ -1,7 +1,7 @@
 ## Alana Schick
 ## This is a script to filter 16S microbiome data using dada2's function filterAndTrim
 ## Note that prior to running this script, primers have been trimmed using Cutadapt - resulting files called samplename_r1_trimmed.fastq.gz
-## Last Updated: October 6 2021
+## Last Updated: October 12 2021
 
 ## This is a version of the script to be run using snakemake
 
@@ -50,6 +50,8 @@ filtered_reverse_reads <- file.path("output/temp/filtered", paste0(samples, "_r2
 
 #########################################################
 ######## Step 0: Exploring filtering parameters
+
+## Explore truncation parameters
 results <- NULL
 ## Select a set of samples at random to inspect
 test <- sample(c(1:length(samples)), 12)
@@ -63,7 +65,7 @@ for (i in seq(from = readlength-45, to = readlength, by = 5)){
                          filtered_reverse_reads[test], 
 						 truncLen=c(i,j),
                          maxEE=expected_errors, rm.phix=TRUE,
-                         compress=FALSE, multithread=TRUE, trimLeft = trimleft)
+                         compress=TRUE, multithread=TRUE, trimLeft = trimleft)
     res <- data.frame(Sample = rownames(out), perc = out[,2]/out[,1], for_trunc = i, rev_trunc = j)
     results <- rbind(results, res)
   }
@@ -87,10 +89,46 @@ gg
 dev.off()
 
 
+## Explore expected error values
+results <- NULL
+## Select a set of samples to inspect
+test <- sample(c(1:length(samples)), 12)
+
+for (i in 1:5){
+	for (j in 1:5){
+		out <- filterAndTrim(forward_reads[test], 
+							filtered_forward_reads[test], 
+							reverse_reads[test],
+							filtered_reverse_reads[test], 
+							truncLen=truncate,
+							maxEE=c(i,j), rm.phix=TRUE,
+							compress=TRUE, multithread=TRUE, trimLeft = trimleft)
+		res <- data.frame(Sample = rownames(out), perc = out[,2]/out[,1], for_error = i, rev_error = j)
+ 		results <- rbind(results, res)
+
+	}
+}
+
+results <- results %>% separate(Sample, c("Name", "Sample"), sep = "_S")
+
+gg <- ggplot(results, aes(x = for_error, y = perc, colour = as.factor(rev_error))) +
+	geom_point(size = 2) +
+	geom_line(size = 1) +
+	scale_colour_manual(values = rainbow(5, v = 0.8), name = "Error Rate Reverse") +
+	xlab("Error Rate Forward") +
+	ylab("Percentage reads passed filtering") +
+	ggtitle("Expected error parameters") +
+	theme_bw() +
+	facet_wrap(~Name)
+
+
+pdf(file.path("output", "expected_error_parameters.pdf"))
+gg
+dev.off()
+
+
 #########################################################
 ####### Step 1: Quality filtering
-
-#out <- filterAndTrim(forward_reads, filtered_forward_reads, reverse_reads, filtered_reverse_reads, maxEE = expected_errors, multithread = TRUE, rm.phix=TRUE, truncLen=truncate, trimLeft = trimleft, compress = TRUE)
 
 out <- filterAndTrim(forward_reads, filtered_forward_reads, reverse_reads, filtered_reverse_reads, maxEE = expected_errors, multithread = TRUE, rm.phix=TRUE, trimLeft = trimleft, compress = TRUE, truncLen = truncate)
 
