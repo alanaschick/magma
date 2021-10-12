@@ -1,7 +1,7 @@
 ## Alana Schick
 ## This is a script to process 16S microbiome data using dada2
 ## Note that prior to running this script, primers have been trimmed using Cutadapt and reads have been filtered
-## Last updated: OCTOBER 6 2021
+## Last updated: OCTOBER 12 2021
 
 ## This is a version of the script to be run using snakemake
 
@@ -13,6 +13,7 @@ library(tidyverse)
 list_of_filenames <- snakemake@input$listfiles
 tax_ref <- snakemake@config$dada2_tax_ref
 spe_ref <- snakemake@config$dada2_spe_ref
+bacterial <- snakemake@config$bacterial
 
 ## Make a vector of sample names
 samples <- scan(list_of_filenames, what = "character")
@@ -77,10 +78,6 @@ getN <- function(x) sum (getUniques(x))
 summary_tab <- data.frame(row.names=samples, Input=out[,1], Filtered=out[,2], Denoised=sapply(dadaF, getN), Merged=sapply(merged, getN), Non.Chimeric=rowSums(seqtab.nochim), Total.Perc.Remaining = round(rowSums(seqtab.nochim)/out[,1]*100,1))
 
 
-
-################################################
-## To do: Need to improve this plot?
-################################################
 pdf(file.path("output", "reads_remaining.pdf"))
 hist(summary_tab$Total.Perc.Remaining, col = "blue", breaks = 50, main = "Total", xlab = "Percentage reads remaining")
 dev.off()
@@ -111,7 +108,11 @@ dev.off()
 ## To do: add parameter to config file to allow user to decide whether or not to allow multiples
 ################################################
 taxa <- assignTaxonomy(seqtab.nochim, tax_ref, multithread = TRUE)
-taxa <- addSpecies (taxa, spe_ref, allowMultiple = TRUE)
+
+## Add Species (if 16S, not if ITS)
+if (bacterial == T){
+	taxa <- addSpecies (taxa, spe_ref, allowMultiple = TRUE)
+}	
 
 
 ####### Step 9: Save output
