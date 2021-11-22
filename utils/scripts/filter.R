@@ -1,7 +1,7 @@
 ## Alana Schick
 ## This is a script to filter 16S microbiome data using dada2's function filterAndTrim
 ## Note that prior to running this script, primers have been trimmed using Cutadapt - resulting files called samplename_r1_trimmed.fastq.gz
-## Last Updated: October 12 2021
+## Last Updated: Nov 22 2021
 
 ## This is a version of the script to be run using snakemake
 
@@ -21,6 +21,10 @@ readlength <- snakemake@config$readlength
 ## Cutadapt setting
 trimmed <- snakemake@config$run_cutadapt
 path_to_raw <- snakemake@config$path
+
+## Exploring parameter space options
+trunc_param <- snakemake@config$explore_truncation_params
+ee_param <- snakemake@config$explore_quality_params
 
 ## Make directory for quality plots
 dir.create("output/quality_plots/")
@@ -51,6 +55,7 @@ filtered_reverse_reads <- file.path("output/temp/filtered", paste0(samples, "_r2
 #########################################################
 ######## Step 0: Exploring filtering parameters
 
+if (trunc_param == T){
 ## Explore truncation parameters
 results <- NULL
 ## Select a set of samples at random to inspect
@@ -87,12 +92,11 @@ gg <- ggplot(results, aes(x = for_trunc, y = perc, colour = as.factor(rev_trunc)
 pdf(file.path("output", "truncation_parameters.pdf"))
 gg
 dev.off()
+}
 
-
+if (ee_param == T){
 ## Explore expected error values
 results <- NULL
-## Select a set of samples to inspect
-test <- sample(c(1:length(samples)), 12)
 
 for (i in 1:5){
 	for (j in 1:5){
@@ -125,7 +129,7 @@ gg <- ggplot(results, aes(x = for_error, y = perc, colour = as.factor(rev_error)
 pdf(file.path("output", "expected_error_parameters.pdf"))
 gg
 dev.off()
-
+}
 
 #########################################################
 ####### Step 1: Quality filtering
