@@ -32,6 +32,10 @@ rev_primer: "CTGTCTCTTATACACATCT"
 fwd_primer_rc: "CTGTCTCTTATACACATCT"
 rev_primer_rc: "CTGTCTCTTATACACATCT"
 
+### Exploring parameter space
+explore_truncation_params: TRUE
+explore_quality_params: TRUE
+
 ### Dada2 filtering parameters
 readlength: 250
 trimleft_forward: 10
