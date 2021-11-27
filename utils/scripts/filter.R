@@ -90,7 +90,7 @@ gg <- ggplot(results, aes(x = for_trunc, y = perc, colour = as.factor(rev_trunc)
 
 
 pdf(file.path("output", "truncation_parameters.pdf"))
-gg
+print(gg)
 dev.off()
 }
 
@@ -127,7 +127,7 @@ gg <- ggplot(results, aes(x = for_error, y = perc, colour = as.factor(rev_error)
 
 
 pdf(file.path("output", "expected_error_parameters.pdf"))
-gg
+print(gg)
 dev.off()
 }
 
