@@ -35,7 +35,6 @@ dir.create("output/quality_plots/")
 ## Make a vector of sample names
 samples <- scan(list_of_filenames, what = "character")
 
-############# Need to fix this to be dependent on whether or not cutadapt is run
 ## file names of forward and reverse reads, before quality filtering
 if (trimmed == T){
 	forward_reads <- file.path("output/temp/cutadapt", paste0(samples, "_r1_cutadapt.fastq.gz"))
@@ -50,7 +49,6 @@ if (trimmed == F){
 ## file names of forward and reverse reads, after quality filtering
 filtered_forward_reads <- file.path("output/temp/filtered", paste0(samples, "_r1_filtered.fastq.gz"))
 filtered_reverse_reads <- file.path("output/temp/filtered", paste0(samples, "_r2_filtered.fastq.gz"))
-
 
 #########################################################
 ######## Step 0: Exploring filtering parameters
@@ -85,7 +83,7 @@ gg <- ggplot(results, aes(x = for_trunc, y = perc, colour = as.factor(rev_trunc)
   xlab("Truncate Forward") +
   ylab("Percentage reads passed filtering") +
   ggtitle("Truncation parameters") +
-  theme_bw() +
+  theme_minimal() +
   facet_wrap(~Name)
 
 
@@ -122,7 +120,7 @@ gg <- ggplot(results, aes(x = for_error, y = perc, colour = as.factor(rev_error)
 	xlab("Error Rate Forward") +
 	ylab("Percentage reads passed filtering") +
 	ggtitle("Expected error parameters") +
-	theme_bw() +
+	theme_minimal() +
 	facet_wrap(~Name)
 
 
